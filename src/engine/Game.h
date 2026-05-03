@@ -4,14 +4,16 @@
 
 #ifndef MYENGINE_GAME_H
 #define MYENGINE_GAME_H
+#include "SDL3/SDL_events.h"
 
 struct GameConfig;
+class Root;
 
 class Game {
 public:
     virtual ~Game() = default;
 
-    virtual GameConfig getConfig();
+    virtual GameConfig getConfig() = 0;
     virtual void onInit(Root *root) = 0;
     virtual bool onEvent(const SDL_Event *event) = 0;
     virtual void onShutdown() = 0;

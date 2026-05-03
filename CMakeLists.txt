@@ -13,9 +13,6 @@ endif()
 # ----------------------
 # Engine (library)
 # ----------------------
-add_library(engine
-        src/engine/Game.h
-        src/engine/GameConfig.h)
 add_library(MyEngine)
 
 target_sources(MyEngine
