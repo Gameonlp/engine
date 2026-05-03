@@ -16,8 +16,9 @@ endif()
 add_library(engine
         src/engine/Game.h
         src/engine/GameConfig.h)
+add_library(MyEngine)
 
-target_sources(engine
+target_sources(MyEngine
         PRIVATE
         src/engine/SDLMain.cpp
         src/engine/GameObject.cpp
@@ -26,11 +27,13 @@ target_sources(engine
         src/engine/Timer.cpp
 )
 
-target_include_directories(engine
+target_include_directories(MyEngine
         PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(engine
+target_link_libraries(MyEngine
         PUBLIC SDL3::SDL3
 )
+
+add_library(MyEngine::MyEngine ALIAS MyEngine)
