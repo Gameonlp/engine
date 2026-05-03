@@ -7,7 +7,9 @@
 #include <memory>
 #include <vector>
 
+#include "RenderContext.h"
 #include "SDL3/SDL_rect.h"
+#include "SDL3/SDL_render.h"
 
 class Root;
 struct State;
@@ -26,7 +28,7 @@ public:
      */
     virtual void initialize() {};
     virtual void update(float dt) {};
-    virtual void draw() {};
+    virtual void draw(RenderContext ctx) {};
 
     [[nodiscard]] SDL_FPoint& position();
     [[nodiscard]] const SDL_FPoint& getPosition() const;
@@ -49,7 +51,7 @@ private:
     bool markedForRemoval;
     bool updating;
     void _update(float dt);
-    void _draw();
+    void _draw(RenderContext ctx);
     void _addChildren();
     void _clean();
 };

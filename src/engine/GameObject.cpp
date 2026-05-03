@@ -62,10 +62,10 @@ void GameObject::_update(float dt) {
     }
 }
 
-void GameObject::_draw() {
-    draw();
+void GameObject::_draw(const RenderContext ctx) {
+    draw(ctx);
     for (auto& child : children) {
-        child->_draw();
+        child->_draw(ctx);
     }
 }
 

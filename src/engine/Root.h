@@ -17,7 +17,8 @@ public:
 
     void update(float dt) override;
 
-    void draw() override;
+    void draw();
+    void draw(RenderContext ctx) override;
 
     Root *getRoot() override;
 
