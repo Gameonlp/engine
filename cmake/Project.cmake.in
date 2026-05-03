@@ -1,0 +1,62 @@
+cmake_minimum_required(VERSION 3.16)
+project(@PROJECT_NAME@)
+
+set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/$<CONFIGURATION>")
+
+add_subdirectory(vendored/SDL EXCLUDE_FROM_ALL)
+
+# ----------------------
+# Engine (library)
+# ----------------------
+add_library(engine
+        src/engine/Timer.cpp
+        src/engine/Timer.h
+        src/engine/Direction.h
+)
+
+target_sources(engine
+        PRIVATE
+        src/engine/GameObject.cpp
+        src/engine/Utils.cpp
+        src/engine/Root.cpp
+        PUBLIC
+        src/engine/GameObject.h
+        src/engine/Utils.h
+        src/engine/Tween.h
+        src/engine/Root.h
+        src/engine/SDLExtensions.h
+        src/engine/Easing.h
+        src/engine/State.h
+)
+
+target_include_directories(engine
+        PUBLIC
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/engine
+)
+
+target_link_libraries(engine
+        PUBLIC SDL3::SDL3
+)
+
+# ----------------------
+# Game target
+# ----------------------
+set(GAME_TARGET @PROJECT_NAME@)
+
+add_executable(${GAME_TARGET} WIN32
+)
+
+target_link_libraries(${GAME_TARGET}
+        PRIVATE engine
+)
+
+add_custom_command(TARGET ${GAME_TARGET} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_CURRENT_LIST_DIR}/assets
+        $<TARGET_FILE_DIR:${GAME_TARGET}>/assets
+)
