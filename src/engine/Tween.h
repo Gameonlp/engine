@@ -2,8 +2,8 @@
 // Created by dev on 4/19/26.
 //
 
-#ifndef ENGINE_TWEEN_H
-#define ENGINE_TWEEN_H
+#ifndef MYENGINE_TWEEN_H
+#define MYENGINE_TWEEN_H
 #include <functional>
 
 #include "Easing.h"

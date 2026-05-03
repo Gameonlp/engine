@@ -2,8 +2,8 @@
 // Created by dev on 4/19/26.
 //
 
-#ifndef ENGINE_ROOT_H
-#define ENGINE_ROOT_H
+#ifndef MYENGINE_ROOT_H
+#define MYENGINE_ROOT_H
 #include <unordered_map>
 #include <string>
 

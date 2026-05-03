@@ -2,8 +2,8 @@
 // Created by dev on 5/3/26.
 //
 
-#ifndef ENGINE_DIRECTION_H
-#define ENGINE_DIRECTION_H
+#ifndef MYENGINE_DIRECTION_H
+#define MYENGINE_DIRECTION_H
 #include "utility"
 
 enum class Direction {

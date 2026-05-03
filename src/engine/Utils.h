@@ -2,8 +2,8 @@
 // Created by dev on 4/15/26.
 //
 
-#ifndef ENGINE_UTILS_H
-#define ENGINE_UTILS_H
+#ifndef MYENGINE_UTILS_H
+#define MYENGINE_UTILS_H
 #include <string>
 
 #include "SDL3/SDL_render.h"

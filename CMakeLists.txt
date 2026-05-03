@@ -13,10 +13,13 @@ endif()
 # ----------------------
 # Engine (library)
 # ----------------------
-add_library(engine)
+add_library(engine
+        src/engine/Game.h
+        src/engine/GameConfig.h)
 
 target_sources(engine
         PRIVATE
+        src/engine/SDLMain.cpp
         src/engine/GameObject.cpp
         src/engine/Utils.cpp
         src/engine/Root.cpp

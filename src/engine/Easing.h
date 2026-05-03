@@ -2,8 +2,8 @@
 // Created by dev on 4/19/26.
 //
 
-#ifndef ENGINE_EASING_H
-#define ENGINE_EASING_H
+#ifndef MYENGINE_EASING_H
+#define MYENGINE_EASING_H
 
 static float linear(float t) {
     return t;

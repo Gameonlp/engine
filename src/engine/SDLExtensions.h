@@ -2,8 +2,8 @@
 // Created by dev on 4/19/26.
 //
 
-#ifndef ENGINE_SDLEXTENSIONS_H
-#define ENGINE_SDLEXTENSIONS_H
+#ifndef MYENGINE_SDLEXTENSIONS_H
+#define MYENGINE_SDLEXTENSIONS_H
 
 #include "SDL3/SDL_rect.h"
 
