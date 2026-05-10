@@ -17,6 +17,7 @@ add_library(MyEngine)
 
 target_sources(MyEngine
         PRIVATE
+        src/engine/Camera.cpp
         src/engine/SDLMain.cpp
         src/engine/GameObject.cpp
         src/engine/Utils.cpp

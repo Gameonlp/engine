@@ -29,6 +29,10 @@ void GameObject::queueRemove() {
     }
 }
 
+inline RenderContext GameObject::modifyRenderContext(RenderContext ctx) {
+    return ctx;
+}
+
 Root *GameObject::getRoot() {
     if (getParent() != nullptr) {
         return getParent()->getRoot();
@@ -62,7 +66,8 @@ void GameObject::_update(float dt) {
     }
 }
 
-void GameObject::_draw(const RenderContext ctx) {
+void GameObject::_draw(RenderContext ctx) {
+    ctx = modifyRenderContext(ctx);
     draw(ctx);
     for (auto& child : children) {
         child->_draw(ctx);
@@ -90,5 +95,3 @@ void GameObject::_clean() {
         }
     }
 }
-
-

@@ -24,7 +24,7 @@ public:
     GameObject& operator=(GameObject&) = delete;
 
     /**
-     * First function called when child is in the Scene tree, before first update, will only be called if updating is set to true
+     * First function called when child is in the Scene tree, before first update, will be called once updating is set to true
      */
     virtual void initialize() {};
     virtual void update(float dt) {};
@@ -35,6 +35,8 @@ public:
 
     void queueAddChild(std::unique_ptr<GameObject> child);
     void queueRemove();
+
+    virtual RenderContext modifyRenderContext(RenderContext ctx);
 
     virtual Root* getRoot();
     [[nodiscard]] GameObject* getParent() const;

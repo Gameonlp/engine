@@ -3,6 +3,8 @@
 //
 
 #include "Utils.h"
+
+#include "Camera.h"
 #include "SDLExtensions.h"
 #include "GameObject.h"
 
@@ -15,6 +17,13 @@ void Utils::globalPosition(SDL_FPoint &position, GameObject *object) {
         const SDL_FPoint curPos = current->getPosition();
         position += curPos;
         current = current->getParent();
+    }
+}
+
+void Utils::viewPosition(SDL_FPoint &position, GameObject *object, RenderContext context) {
+    globalPosition(position, object);
+    if (const auto *camera = context.camera) {
+        position -= camera->getPosition();
     }
 }
 

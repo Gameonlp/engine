@@ -17,15 +17,15 @@ void Root::update(const float dt) {
 }
 
 void Root::draw() {
-    draw({renderer});
+    draw({renderer, nullptr});
 }
 
-void Root::draw(const RenderContext ctx) {
-    SDL_SetRenderDrawColor(ctx.renderer, 0, 0, 0, 255);
-    SDL_RenderClear(ctx.renderer);
+void Root::draw(RenderContext ctx) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    SDL_RenderClear(renderer);
     for (const auto &child: children)
         child->_draw(ctx);
-    SDL_RenderPresent(ctx.renderer);
+    SDL_RenderPresent(renderer);
 }
 
 Root *Root::getRoot() {

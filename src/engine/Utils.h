@@ -6,6 +6,7 @@
 #define MYENGINE_UTILS_H
 #include <string>
 
+#include "RenderContext.h"
 #include "SDL3/SDL_render.h"
 
 
@@ -15,6 +16,7 @@ struct State;
 class Utils {
 public:
     static void globalPosition(SDL_FPoint &position, GameObject *object);
+    static void viewPosition(SDL_FPoint &position, GameObject *object, RenderContext context);
 
     template<class T>
     static T square(T toSquare);
