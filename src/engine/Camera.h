@@ -9,13 +9,17 @@
 
 class Camera : public GameObject {
 public:
-    Camera(SDL_FPoint position, SDL_FPoint size) : GameObject(position), size(size){};
+    Camera(SDL_FRect rect) : GameObject({0, 0}), rect(rect) {};
 
     void move(SDL_FPoint delta);
 
+    [[nodiscard]] SDL_FPoint cameraPosition() const;
+
+    [[nodiscard]] SDL_FRect cameraRect() const;
+
     RenderContext modifyRenderContext(RenderContext ctx) override;
 private:
-    SDL_FPoint size;
+    SDL_FRect rect;
 };
 
 

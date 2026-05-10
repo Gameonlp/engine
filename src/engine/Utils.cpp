@@ -23,7 +23,7 @@ void Utils::globalPosition(SDL_FPoint &position, GameObject *object) {
 void Utils::viewPosition(SDL_FPoint &position, GameObject *object, RenderContext context) {
     globalPosition(position, object);
     if (const auto *camera = context.camera) {
-        position -= camera->getPosition();
+        position -= camera->cameraPosition();
     }
 }
 
@@ -33,10 +33,7 @@ T Utils::square(T toSquare) {
 }
 
 void Utils::rect(SDL_FRect &rect, const SDL_FPoint pos, const SDL_FPoint size) {
-    rect.x = pos.x;
-    rect.y = pos.y;
-    rect.w = size.x;
-    rect.h = size.y;
+    Utils::rect(rect, pos, size.x, size.y);
 }
 
 void Utils::rect(SDL_FRect &rect, const SDL_FPoint pos, const float w, const float h) {
