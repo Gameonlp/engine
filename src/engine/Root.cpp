@@ -4,14 +4,16 @@
 
 #include "Root.h"
 
+#include <algorithm>
 #include <string>
 
 #include "SDL3/SDL_filesystem.h"
 #include "SDL3/SDL_log.h"
 
 void Root::update(const float dt) {
-    for (const auto &child: children)
+    for (const auto &child: children) {
         child->_update(dt);
+    }
     _clean();
     _addChildren();
 }
@@ -21,11 +23,19 @@ void Root::draw() {
 }
 
 void Root::draw(RenderContext ctx) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-    SDL_RenderClear(renderer);
-    for (const auto &child: children)
-        child->_draw(ctx);
-    SDL_RenderPresent(renderer);
+    SDL_SetRenderDrawColor(ctx.renderer, 0, 0, 0, 255);
+    SDL_RenderClear(ctx.renderer);
+    std::vector<RenderJob> renderJobs;
+    for (const auto &child: children) {
+        child->_draw(ctx, renderJobs, 0);
+    }
+    std::ranges::stable_sort(renderJobs, [](const RenderJob &jobA, const RenderJob &jobB) {
+        return jobA.zIndex < jobB.zIndex;
+    });
+    for (const auto &[gameObject, renderContext, _] : renderJobs) {
+        gameObject->draw(renderContext);
+    }
+    SDL_RenderPresent(ctx.renderer);
 }
 
 Root *Root::getRoot() {

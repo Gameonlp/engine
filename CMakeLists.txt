@@ -13,7 +13,9 @@ endif()
 # ----------------------
 # Engine (library)
 # ----------------------
-add_library(MyEngine)
+add_library(MyEngine
+        src/engine/RenderJob.h
+)
 
 target_sources(MyEngine
         PRIVATE

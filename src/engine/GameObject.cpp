@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "RenderJob.h"
 #include "Utils.h"
 
 SDL_FPoint& GameObject::position() {
@@ -66,11 +67,16 @@ void GameObject::_update(float dt) {
     }
 }
 
-void GameObject::_draw(RenderContext ctx) {
+void GameObject::_draw(RenderContext ctx, std::vector<RenderJob> &jobs, int zIndex) {
     ctx = modifyRenderContext(ctx);
-    draw(ctx);
-    for (auto& child : children) {
-        child->_draw(ctx);
+    if (absoluteZIndex) {
+        zIndex = this->zIndex;
+    } else {
+        zIndex += this->zIndex;
+    }
+    jobs.push_back(RenderJob{this, ctx, zIndex});
+    for (const auto& child : children) {
+        child->_draw(ctx, jobs, zIndex);
     }
 }
 

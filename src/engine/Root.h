@@ -8,11 +8,12 @@
 #include <string>
 
 #include "GameObject.h"
+#include "GameObject.h"
 #include "SDL3/SDL_render.h"
 
 class Root final : public GameObject {
 public:
-    Root(SDL_Renderer *renderer, SDL_Window *window) : GameObject({0, 0}), renderer(renderer), window(window) {
+    Root(SDL_Renderer *renderer, SDL_Window *window) : GameObject({}), renderer(renderer), window(window) {
     }
 
     void update(float dt) override;
