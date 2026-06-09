@@ -221,6 +221,14 @@ namespace {
         return std::visit([](const auto &i) { return i.numVertices; }, item);
     }
 
+    auto getAsset(const RenderItem &item) {
+        return std::visit([](const auto &i) { return i.asset; }, item);
+    }
+
+    auto getSampler(const RenderItem &item) {
+        return std::visit([](const auto &i) { return i.gpuSampler; }, item);
+    }
+
     auto getStride(VertexFormatID id) {
         if (id == vertexFormatID<SimpleVertex>()) {
             return sizeof(SimpleVertex);
@@ -382,6 +390,11 @@ bool Root::initializeStaticResources(CommandBuffer &buffer) {
 
     UploadTransferBuffer whiteTransfer{device.get(), sizeof(uint32_t)};
     void *whiteMapped = whiteTransfer.map(sizeof(uint32_t));
+    if (!whiteMapped) {
+        SDL_Log("Transfer buffer mapping failed for white texture: %s", SDL_GetError());
+        SDL_ReleaseGPUTexture(device.get(), whiteTexture);
+        return false;
+    }
     SDL_memcpy(whiteMapped, &white, sizeof(uint32_t));
     whiteTransfer.unmap();
 
@@ -390,7 +403,12 @@ bool Root::initializeStaticResources(CommandBuffer &buffer) {
     SDL_UploadToGPUTexture(combinedPass.pass, &whiteSrc, &whiteDst, false);
 
     renderer.restart(device.get(), window.get());
-    renderer.whiteTexture = whiteTexture;
+    if (! (renderer.linePipeline && renderer.texturePipeline && renderer.trianglePipeline)) {
+        SDL_ReleaseGPUTexture(device.get(), whiteTexture);
+        valid = false;
+        return false;
+    }
+    renderer.whiteTexture = std::make_shared<TextureAsset>(true, whiteTexture, 1, 1, 1, device.get());
 
     return true;
 }
@@ -490,17 +508,17 @@ void Root::handleGeometryUploads(CopyPass &pass) {
                         .elementSize = SDL_GPU_INDEXELEMENTSIZE_16BIT
                     });
                 }
-                if (const auto spriteRenderItem = std::get_if<SpriteRenderItem>(&*begin)) {
-                    if (spriteRenderItem->gpuSampler != flushState.sampler || spriteRenderItem->asset != flushState.
-                        texture) {
-                        changed = true;
-                        flushState.texture = spriteRenderItem->asset;
-                        flushState.sampler = spriteRenderItem->gpuSampler;
-                        newCommands.emplace_back(BindFragmentSampler{
-                            .bindingData = {{flushState.texture, flushState.sampler}},
-                            .firstSlot = 0
-                        });
-                    }
+                auto sampler = getSampler(*begin);
+                auto asset = getAsset(*begin);
+                if (sampler != flushState.sampler || asset != flushState.
+                    texture) {
+                    changed = true;
+                    flushState.texture = asset;
+                    flushState.sampler = sampler;
+                    newCommands.emplace_back(BindFragmentSampler{
+                        .bindingData = {{flushState.texture, flushState.sampler}},
+                        .firstSlot = 0
+                    });
                 }
                 if (changed) {
                     if (totalVertices > 0) {
@@ -666,17 +684,15 @@ void Root::draw(RenderContext ctx) {
         if (aNumVertices && bNumVertices && aNumVertices != bNumVertices) {
             return aNumVertices < bNumVertices;
         }
-        const auto aSpriteItem = std::get_if<SpriteRenderItem>(&jobA);
-        const auto bSpriteItem = std::get_if<SpriteRenderItem>(&jobB);
-        if (aSpriteItem && bSpriteItem) {
-            if (aSpriteItem->asset->isReady && bSpriteItem->asset->isReady && aSpriteItem->asset->texture != bSpriteItem
-                ->asset->texture) {
-                return aSpriteItem->asset->texture < bSpriteItem->asset->texture;
-            }
-            if (aSpriteItem->gpuSampler && bSpriteItem->gpuSampler && aSpriteItem->gpuSampler != bSpriteItem->
-                gpuSampler) {
-                return aSpriteItem->gpuSampler < bSpriteItem->gpuSampler;
-            }
+        const auto aAsset = getAsset(jobA);
+        const auto bAsset = getAsset(jobB);
+        if (aAsset && bAsset && aAsset != bAsset) {
+            return aAsset->texture < bAsset->texture;
+        }
+        const auto aSampler = getSampler(jobA);
+        const auto bSampler = getSampler(jobB);
+        if (aSampler && bSampler && aSampler != bSampler) {
+            return aSampler < bSampler;
         }
         return false;
     });

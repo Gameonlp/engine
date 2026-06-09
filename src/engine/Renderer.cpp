@@ -26,6 +26,8 @@ void Renderer::drawLine(RenderContext ctx, SDL_FPoint src, SDL_FPoint dst, SDL_F
                 SimpleVertex{srcX, srcY, 0, 0, 0, r, g, b, a},
                 SimpleVertex{dstX, dstY, 0, 0, 0, r, g, b, a}
             },
+            .asset = whiteTexture,
+            .gpuSampler = "linear",
             .pipeline = linePipeline,
             .zIndex = ctx.zIndex,
         });
@@ -47,6 +49,8 @@ void Renderer::drawTriangle(RenderContext ctx, SDL_FPoint a, SDL_FPoint b, SDL_F
                     SimpleVertex{bX, bY, 0, 0, 0, r, g, b, a},
                     SimpleVertex{cX, cY, 0, 0, 0, r, g, b, a}
                 },
+                .asset = whiteTexture,
+                .gpuSampler = "linear",
                 .pipeline = trianglePipeline,
                 .zIndex = ctx.zIndex,
             });
@@ -60,6 +64,8 @@ void Renderer::drawTriangle(RenderContext ctx, SDL_FPoint a, SDL_FPoint b, SDL_F
                     SimpleVertex{cX, cY, 0, 0, 0, r, g, b, a},
                     SimpleVertex{aX, aY, 0, 0, 0, r, g, b, a}
                 },
+                .asset = whiteTexture,
+                .gpuSampler = "linear",
                 .pipeline = linePipeline,
                 .zIndex = ctx.zIndex,
             });
@@ -84,6 +90,8 @@ void Renderer::drawRect(RenderContext ctx, SDL_FRect rect, SDL_FColor color, boo
                     SimpleVertex{tlX, tlY, 0, 0, 0, r, g, b, a},
                 },
                 .indexKind = "quad",
+                .asset = whiteTexture,
+                .gpuSampler = "linear",
                 .pipeline = trianglePipeline,
                 .zIndex = ctx.zIndex,
             });
@@ -99,6 +107,8 @@ void Renderer::drawRect(RenderContext ctx, SDL_FRect rect, SDL_FColor color, boo
                     SimpleVertex{tlX, tlY, 0, 0, 0, r, g, b, a},
                     SimpleVertex{blX, blY, 0, 0, 0, r, g, b, a},
                 },
+                .asset = whiteTexture,
+                .gpuSampler = "linear",
                 .pipeline = linePipeline,
                 .zIndex = ctx.zIndex,
             });
@@ -106,22 +116,28 @@ void Renderer::drawRect(RenderContext ctx, SDL_FRect rect, SDL_FColor color, boo
     }
 }
 
-void Renderer::drawTexture(RenderContext ctx, std::shared_ptr<TextureAsset> &texture, SDL_FRect srcRect, SDL_FRect dstRect,
+void Renderer::drawTexture(RenderContext ctx, std::shared_ptr<TextureAsset> &texture, SDL_FRect srcRect,
+                           SDL_FRect dstRect,
                            float rotation,
                            bool hMirror, bool vMirror, SDL_FColor color, StringHash gpuSampler) {
     const auto cameraRect = ctx.camera->cameraRect();
     if (SDL_HasRectIntersectionFloat(&dstRect, &cameraRect)) {
         const auto [r, g, b, a] = Utils::premultiply(color);
         const auto center = SDL_FPoint{dstRect.x + dstRect.w / 2, dstRect.y + dstRect.h / 2};
-        const auto [blX, blY] = ctx.camera->toCameraSpace(Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x, dstRect.y + dstRect.h} - center, rotation) + center);
-        const auto [brX, brY] = ctx.camera->toCameraSpace(Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x + dstRect.w, dstRect.y + dstRect.h} - center, rotation) + center);
-        const auto [tlX, tlY] = ctx.camera->toCameraSpace(Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x, dstRect.y} - center, rotation) + center);
-        const auto [trX, trY] = ctx.camera->toCameraSpace(Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x + dstRect.w, dstRect.y} - center, rotation) + center);
+        const auto [blX, blY] = ctx.camera->toCameraSpace(
+            Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x, dstRect.y + dstRect.h} - center, rotation) + center);
+        const auto [brX, brY] = ctx.camera->toCameraSpace(
+            Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x + dstRect.w, dstRect.y + dstRect.h} - center, rotation) +
+            center);
+        const auto [tlX, tlY] = ctx.camera->toCameraSpace(
+            Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x, dstRect.y} - center, rotation) + center);
+        const auto [trX, trY] = ctx.camera->toCameraSpace(
+            Utils::rotateAroundOrigin(SDL_FPoint{dstRect.x + dstRect.w, dstRect.y} - center, rotation) + center);
 
         const auto [x, y] = SDL_FPoint{texture->w, texture->h};
-        float uLeft   = srcRect.x / x;
-        float uRight  = (srcRect.x + srcRect.w) / x;
-        float vTop    = srcRect.y / y;
+        float uLeft = srcRect.x / x;
+        float uRight = (srcRect.x + srcRect.w) / x;
+        float vTop = srcRect.y / y;
         float vBottom = (srcRect.y + srcRect.h) / y;
 
         if (hMirror) {
@@ -134,13 +150,13 @@ void Renderer::drawTexture(RenderContext ctx, std::shared_ptr<TextureAsset> &tex
         renderItems.emplace_back(SpriteRenderItem{
             .vertices = {
                 // Bottom-Left
-                SimpleVertex{blX, blY, 0, uLeft,  vBottom, r, g, b, a},
+                SimpleVertex{blX, blY, 0, uLeft, vBottom, r, g, b, a},
                 // Bottom-Right
                 SimpleVertex{brX, brY, 0, uRight, vBottom, r, g, b, a},
                 // Top-Right
-                SimpleVertex{trX, trY, 0, uRight, vTop,    r, g, b, a},
+                SimpleVertex{trX, trY, 0, uRight, vTop, r, g, b, a},
                 // Top-Left
-                SimpleVertex{tlX, tlY, 0, uLeft,  vTop,    r, g, b, a},
+                SimpleVertex{tlX, tlY, 0, uLeft, vTop, r, g, b, a},
             },
             .asset = texture,
             .gpuSampler = gpuSampler,
@@ -176,13 +192,21 @@ SDL_GPUGraphicsPipeline *Renderer::createLinePipeline(SDL_GPUDevice *device, SDL
                                    &Engine::Shaders::primitive_frag_spv, SDL_GPU_PRIMITIVETYPE_LINELIST);
 }
 
-//TODO add necessary checks to make safe
 SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device, SDL_Window *window,
                                                            const std::vector<uint8_t> *vertexShaderData,
                                                            const std::vector<uint8_t> *fragShaderData,
                                                            SDL_GPUPrimitiveType type) {
+    if (!device || !window || !vertexShaderData || !fragShaderData) {
+        SDL_Log("createPrimitivePipeline: null argument");
+        return nullptr;
+    }
+    if (vertexShaderData->empty() || fragShaderData->empty()) {
+        SDL_Log("createPrimitivePipeline: empty shader data");
+        return nullptr;
+    }
+
     SDL_GPUGraphicsPipelineCreateInfo info{};
-    // 1. Create Vertex Shader directly from memory
+
     SDL_GPUShaderCreateInfo vertInfo{};
     vertInfo.code = vertexShaderData->data();
     vertInfo.code_size = vertexShaderData->size();
@@ -190,8 +214,11 @@ SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device
     vertInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
     vertInfo.stage = SDL_GPU_SHADERSTAGE_VERTEX;
     SDL_GPUShader *vertexShader = SDL_CreateGPUShader(device, &vertInfo);
+    if (!vertexShader) {
+        SDL_Log("createPrimitivePipeline: vertex shader creation failed: %s", SDL_GetError());
+        return nullptr;
+    }
 
-    // 2. Create Fragment Shader directly from memory
     SDL_GPUShaderCreateInfo fragInfo{};
     fragInfo.code = fragShaderData->data();
     fragInfo.code_size = fragShaderData->size();
@@ -199,10 +226,14 @@ SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device
     fragInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
     fragInfo.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
     SDL_GPUShader *fragmentShader = SDL_CreateGPUShader(device, &fragInfo);
+    if (!fragmentShader) {
+        SDL_Log("createPrimitivePipeline: fragment shader creation failed: %s", SDL_GetError());
+        SDL_ReleaseGPUShader(device, vertexShader);
+        return nullptr;
+    }
 
     info.vertex_shader = vertexShader;
     info.fragment_shader = fragmentShader;
-
     info.primitive_type = type;
 
     SDL_GPUVertexBufferDescription bufferDesc{};
@@ -212,19 +243,16 @@ SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device
 
     SDL_GPUVertexAttribute attrs[3]{};
 
-    // vec3 position
     attrs[0].location = 0;
     attrs[0].buffer_slot = 0;
     attrs[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
     attrs[0].offset = offsetof(SimpleVertex, x);
 
-    // vec2 uv
     attrs[1].location = 1;
     attrs[1].buffer_slot = 0;
     attrs[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT2;
     attrs[1].offset = offsetof(SimpleVertex, u);
 
-    // vec4 color
     attrs[2].location = 2;
     attrs[2].buffer_slot = 0;
     attrs[2].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT4;
@@ -232,7 +260,6 @@ SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device
 
     info.vertex_input_state.num_vertex_buffers = 1;
     info.vertex_input_state.vertex_buffer_descriptions = &bufferDesc;
-
     info.vertex_input_state.num_vertex_attributes = 3;
     info.vertex_input_state.vertex_attributes = attrs;
 
@@ -242,12 +269,15 @@ SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device
 
     info.rasterizer_state.fill_mode = SDL_GPU_FILLMODE_FILL;
     info.rasterizer_state.cull_mode = SDL_GPU_CULLMODE_NONE;
-
     info.multisample_state.sample_count = SDL_GPU_SAMPLECOUNT_1;
 
     SDL_GPUGraphicsPipeline *pipeline = SDL_CreateGPUGraphicsPipeline(device, &info);
     SDL_ReleaseGPUShader(device, vertexShader);
     SDL_ReleaseGPUShader(device, fragmentShader);
+
+    if (!pipeline) {
+        SDL_Log("createPrimitivePipeline: pipeline creation failed: %s", SDL_GetError());
+    }
     return pipeline;
 }
 

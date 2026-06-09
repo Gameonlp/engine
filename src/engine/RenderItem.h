@@ -25,6 +25,8 @@ struct SentinelRenderItem {
     uint32_t numVertices;
     uint32_t numIndices;
     StringHash indexKind;
+    std::shared_ptr<TextureAsset> asset;
+    StringHash gpuSampler;
     SDL_GPUGraphicsPipeline *pipeline;
     int zIndex;
     VertexFormatID vertexFormat = vertexFormatID<SentinelRenderItem>();
@@ -35,6 +37,8 @@ struct PrimitiveRenderItem {
     uint32_t numVertices;
     uint32_t numIndices;
     StringHash indexKind;
+    std::shared_ptr<TextureAsset> asset;
+    StringHash gpuSampler;
     SDL_GPUGraphicsPipeline *pipeline;
     int zIndex;
     VertexFormatID vertexFormat = vertexFormatID<SimpleVertex>();

@@ -37,7 +37,7 @@ private:
     SDL_GPUGraphicsPipeline *linePipeline;
     SDL_GPUGraphicsPipeline *trianglePipeline;
     SDL_GPUGraphicsPipeline *texturePipeline;
-    SDL_GPUTexture * whiteTexture;
+    std::shared_ptr<TextureAsset> whiteTexture;
 
     void restart(SDL_GPUDevice *device, SDL_Window *window);
 };
