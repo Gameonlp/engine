@@ -17,6 +17,8 @@ public:
 
     [[nodiscard]] SDL_FRect cameraRect() const;
 
+    [[nodiscard]] SDL_FPoint toCameraSpace(SDL_FPoint point) const;
+
     RenderContext modifyRenderContext(RenderContext ctx) override;
 private:
     SDL_FRect rect;

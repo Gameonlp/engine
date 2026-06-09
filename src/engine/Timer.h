@@ -13,7 +13,7 @@ public:
     void start(float time = 0);
     void stop();
     [[nodiscard]] bool isRunning() const;
-    void update(float dt) override;
+    void update(uint64_t dt) override;
 private:
     float time;
     float timeLeft = 0;

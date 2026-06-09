@@ -8,7 +8,6 @@
 #include <vector>
 
 #include "RenderContext.h"
-#include "RenderJob.h"
 #include "SDL3/SDL_rect.h"
 #include "SDL3/SDL_render.h"
 
@@ -41,7 +40,7 @@ public:
     virtual void initialize() {
     };
 
-    virtual void update(float dt) {
+    virtual void update(const uint64_t dt) {
     };
 
     virtual void draw(RenderContext ctx) {
@@ -78,7 +77,7 @@ private:
 
     void _update(float dt);
 
-    void _draw(RenderContext ctx, std::vector<RenderJob> &jobs, int zIndex);
+    void _draw(RenderContext ctx);
 
     void _addChildren();
 

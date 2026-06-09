@@ -19,7 +19,7 @@ void Timer::stop() {
     timeLeft = 0;
 }
 
-void Timer::update(const float dt) {
+void Timer::update(const uint64_t dt) {
     if (timeLeft == 0) {
         return;
     }

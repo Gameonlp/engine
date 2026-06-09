@@ -7,32 +7,74 @@
 #include <unordered_map>
 #include <string>
 
+#include "CommandBuffer.h"
+#include "CopyPass.h"
+#include "GameConfig.h"
 #include "GameObject.h"
-#include "GameObject.h"
+#include "GPUBuffer.h"
+#include "GPUSampler.h"
+#include "GraphicsCommand.h"
+#include "Renderer.h"
+#include "TextureAsset.h"
+#include "SDL3/SDL_init.h"
 #include "SDL3/SDL_render.h"
 
 class Root final : public GameObject {
 public:
-    Root(SDL_Renderer *renderer, SDL_Window *window) : GameObject({}), renderer(renderer), window(window) {
-    }
-
-    void update(float dt) override;
-
-    void draw();
-    void draw(RenderContext ctx) override;
 
     Root *getRoot() override;
 
-    std::shared_ptr<SDL_Texture> getTexture(SDL_Renderer *renderer, const std::string &path);
+    std::shared_ptr<TextureAsset> getTexture(const std::string &path);
 
-    [[nodiscard]] SDL_Renderer * getRenderer() const;
+    const GPUSampler *getGPUSampler(const std::string &name);
 
-    [[nodiscard]] SDL_Window * getWindow() const;
+    const std::string *getIndexKey(std::string &name);
 
+    [[nodiscard]] bool isValid() const;
 private:
-    std::unordered_map<SDL_Renderer *, std::unordered_map<std::string, std::weak_ptr<SDL_Texture> >> rendererTextureCache;
-    SDL_Renderer *renderer;
-    SDL_Window *window;
+    friend class SDLMain;
+    explicit Root(GameConfig config);
+    void driveDraw();
+
+    void initialize() override;
+    void update(uint64_t dt) override;
+    void draw(RenderContext ctx) override;
+
+    void handleGeometryUploads(CopyPass &pass);
+
+    void uploadVertices(CopyPass &pass, VertexFormatID id, const std::vector<uint8_t> &vertices);
+
+    void handleUploads(CommandBuffer &buffer);
+    void handleRenderPass(SDL_GPUColorTargetInfo target, const CommandBuffer &cmdBuffer);
+
+    bool restartDevice(bool validAfter = true);
+
+    bool initializeStaticResources(CommandBuffer &buffer);
+
+    Renderer renderer;
+    std::unordered_map<std::string, std::weak_ptr<TextureAsset> > textureCache;
+    std::unordered_map<StringHash, GPUBuffer> indexBuffers;
+    std::unordered_map<VertexFormatID, GPUBuffer> gpuBuffers;
+    std::unordered_map<StringHash, GPUSampler> gpuSamplers;
+    std::vector<GraphicsCommand> graphicsCommands;
+    std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window;
+    std::unique_ptr<SDL_GPUDevice, decltype(&SDL_DestroyGPUDevice)> device;
+    bool valid;
+    struct FlushState {
+        SDL_GPUGraphicsPipeline *pipeline = nullptr;
+        VertexFormatID vertexBuffer = 0;
+        VertexFormatID instanceBuffer = 0;
+        std::shared_ptr<TextureAsset> texture = nullptr;
+        StringHash sampler = "";
+        uint32_t numVertices = 0;
+        uint32_t numIndices = 0;
+        StringHash indexBuffer = "";
+        std::unordered_map<VertexFormatID, std::pair<uint32_t, std::vector<uint8_t> > > vertexOffsets;
+        std::unordered_map<VertexFormatID, std::pair<uint32_t, std::vector<uint8_t> > > instanceOffsets;
+        std::unordered_map<std::string *, std::pair<uint32_t, std::vector<uint8_t> > > indexOffsets;
+        bool indexed = false;
+    };
+    FlushState flushState;
 };
 
 

@@ -4,13 +4,13 @@
 
 #ifndef MYENGINE_RENDERCONTEXT_H
 #define MYENGINE_RENDERCONTEXT_H
-#include "SDL3/SDL_render.h"
-
+class Renderer;
 class Camera;
 
 struct RenderContext {
-    SDL_Renderer* renderer;
+    Renderer* renderer;
     Camera* camera;
+    int zIndex;
 };
 
 #endif //MYENGINE_RENDERCONTEXT_H
