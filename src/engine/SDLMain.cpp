@@ -20,6 +20,7 @@
 #include "GameConfig.h"
 
 class SDLMain {
+public:
     static Uint64 PREVIOUS, NOW;
 
     /* This function runs once at startup. */
@@ -78,3 +79,18 @@ class SDLMain {
         delete state;
     }
 };
+
+SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
+    SDLMain::NOW = SDLMain::PREVIOUS = 0;
+    return SDLMain::SDL_AppInit(appstate, argc, argv);
+}
+
+SDL_AppResult SDL_AppEvent(void *appstate, SDL_Event *event) {
+    return SDLMain::SDL_AppEvent(appstate, event);
+}
+SDL_AppResult SDL_AppIterate(void *appstate) {
+    return SDLMain::SDL_AppIterate(appstate);
+}
+void SDL_AppQuit(void *appstate, SDL_AppResult result) {
+    SDLMain::SDL_AppQuit(appstate, result);
+}
