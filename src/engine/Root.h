@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <string>
 
+#include "Camera.h"
 #include "CommandBuffer.h"
 #include "CopyPass.h"
 #include "GameConfig.h"
@@ -50,11 +51,13 @@ private:
     bool restartDevice(bool validAfter = true);
 
     bool initializeStaticResources(CommandBuffer &buffer);
+    static constexpr uint8_t FRAMES_IN_FLIGHT = 3;
+    uint8_t frame;
 
     Renderer renderer;
     std::unordered_map<std::string, std::weak_ptr<TextureAsset> > textureCache;
     std::unordered_map<StringHash, GPUBuffer> indexBuffers;
-    std::unordered_map<VertexFormatID, GPUBuffer> gpuBuffers;
+    std::array<std::unordered_map<VertexFormatID, GPUBuffer>, FRAMES_IN_FLIGHT> gpuBuffers;
     std::unordered_map<StringHash, GPUSampler> gpuSamplers;
     std::vector<GraphicsCommand> graphicsCommands;
     std::unique_ptr<SDL_Window, decltype(&SDL_DestroyWindow)> window;
@@ -75,6 +78,7 @@ private:
         bool indexed = false;
     };
     FlushState flushState;
+    Camera camera;
 };
 
 

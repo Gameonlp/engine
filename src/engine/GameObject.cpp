@@ -86,6 +86,7 @@ void GameObject::_addChildren() {
     for (const auto& child : children) {
         child->_addChildren();
     }
+    newChildren.clear();
 }
 
 void GameObject::_clean() {

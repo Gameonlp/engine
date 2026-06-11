@@ -21,13 +21,16 @@
 
 class SDLMain {
 public:
-    static Uint64 PREVIOUS, NOW;
+    inline static Uint64 NOW = 0;
+    inline static Uint64 PREVIOUS = 0;
 
     /* This function runs once at startup. */
     static SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
+        PREVIOUS = SDL_GetTicks();
         Game *game = CreateGame();
         auto config = game->getConfig();
         auto *state = new State();
+        state->game = game;
         state->root = new Root(config);
         game->onInit(state->root);
         state->root->initialize();
@@ -81,7 +84,6 @@ public:
 };
 
 SDL_AppResult SDL_AppInit(void **appstate, int argc, char *argv[]) {
-    SDLMain::NOW = SDLMain::PREVIOUS = 0;
     return SDLMain::SDL_AppInit(appstate, argc, argv);
 }
 

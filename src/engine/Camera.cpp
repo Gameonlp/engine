@@ -23,7 +23,7 @@ SDL_FPoint Camera::toCameraSpace(SDL_FPoint point) const {
     const float halfWidth = rect.w / 2;
     const float halfHeight = rect.h / 2;
     cameraPoint.x = (point.x - (rect.x + halfWidth)) / halfWidth;
-    cameraPoint.y = (point.y - (rect.y + halfHeight)) / halfHeight;
+    cameraPoint.y = -((point.y - (rect.y + halfHeight)) / halfHeight);
     return cameraPoint;
 }
 

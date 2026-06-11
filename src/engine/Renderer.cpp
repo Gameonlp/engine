@@ -89,6 +89,8 @@ void Renderer::drawRect(RenderContext ctx, SDL_FRect rect, SDL_FColor color, boo
                     SimpleVertex{trX, trY, 0, 0, 0, r, g, b, a},
                     SimpleVertex{tlX, tlY, 0, 0, 0, r, g, b, a},
                 },
+                .numVertices = 4,
+                .numIndices = 6,
                 .indexKind = "quad",
                 .asset = whiteTexture,
                 .gpuSampler = "linear",
@@ -160,6 +162,8 @@ void Renderer::drawTexture(RenderContext ctx, std::shared_ptr<TextureAsset> &tex
             },
             .asset = texture,
             .gpuSampler = gpuSampler,
+            .pipeline = trianglePipeline,
+            .zIndex = ctx.zIndex,
         });
     }
 }
@@ -225,6 +229,7 @@ SDL_GPUGraphicsPipeline *Renderer::createPrimitivePipeline(SDL_GPUDevice *device
     fragInfo.entrypoint = "main";
     fragInfo.format = SDL_GPU_SHADERFORMAT_SPIRV;
     fragInfo.stage = SDL_GPU_SHADERSTAGE_FRAGMENT;
+    fragInfo.num_samplers = 1;
     SDL_GPUShader *fragmentShader = SDL_CreateGPUShader(device, &fragInfo);
     if (!fragmentShader) {
         SDL_Log("createPrimitivePipeline: fragment shader creation failed: %s", SDL_GetError());

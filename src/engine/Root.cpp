@@ -239,7 +239,7 @@ namespace {
 
 
 Root::Root(GameConfig config) : GameObject({}), window(nullptr, SDL_DestroyWindow),
-                                device(nullptr, SDL_DestroyGPUDevice) {
+                                device(nullptr, SDL_DestroyGPUDevice), camera(Camera{SDL_FRect{0, 0, static_cast<float>(config.SCREEN_WIDTH), static_cast<float>(config.SCREEN_HEIGHT)}}) {
     window.reset(
         SDL_CreateWindow(
             "Hello World",
@@ -403,7 +403,7 @@ bool Root::initializeStaticResources(CommandBuffer &buffer) {
     SDL_UploadToGPUTexture(combinedPass.pass, &whiteSrc, &whiteDst, false);
 
     renderer.restart(device.get(), window.get());
-    if (! (renderer.linePipeline && renderer.texturePipeline && renderer.trianglePipeline)) {
+    if (! (renderer.linePipeline && renderer.trianglePipeline)) {
         SDL_ReleaseGPUTexture(device.get(), whiteTexture);
         valid = false;
         return false;
@@ -553,7 +553,6 @@ void Root::handleGeometryUploads(CopyPass &pass) {
             tuple.first = 0;
             tuple.second.clear();
         }
-        renderer.renderItems.clear();
     }
 }
 
@@ -575,7 +574,7 @@ void Root::uploadVertices(CopyPass &pass, VertexFormatID id, const std::vector<u
     SDL_GPUTransferBufferLocation location{};
     location.transfer_buffer = transferBuffer.buf;
     buffer.upload(pass.pass, &location, size, 0);
-    gpuBuffers.insert_or_assign(id, std::move(buffer));
+    gpuBuffers[frame].insert_or_assign(id, std::move(buffer));
 }
 
 void Root::handleUploads(CommandBuffer &buffer) {
@@ -600,12 +599,12 @@ void Root::handleUploads(CommandBuffer &buffer) {
 }
 
 void Root::driveDraw() {
-    draw({.renderer = &renderer, .zIndex = 0});
+    draw({.renderer = &renderer, .camera = &camera, .zIndex = 0});
     if (!valid) {
         for (auto &val: gpuSamplers | std::views::values) {
             val.device = nullptr;
         }
-        for (auto &val: gpuBuffers | std::views::values) {
+        for (auto &val: gpuBuffers[frame] | std::views::values) {
             val.device = nullptr;
         }
         for (auto &renderItem: renderer.renderItems) {
@@ -617,15 +616,18 @@ void Root::driveDraw() {
         renderer.renderItems.clear();
         restartDevice();
     }
+    renderer.renderItems.clear();
     graphicsCommands.clear();
+    frame = (frame + 1) % FRAMES_IN_FLIGHT;
 }
 
 void Root::handleRenderPass(SDL_GPUColorTargetInfo target, const CommandBuffer &cmdBuffer) {
     RenderPass pass(cmdBuffer.cmd, &target);
     ApplyArgs args{};
     args.cmd = cmdBuffer.cmd;
-    args.gpuBuffers = &gpuBuffers;
+    args.gpuBuffers = &gpuBuffers[frame];
     args.indexBuffers = &indexBuffers;
+    args.gpuSamplers = &gpuSamplers;
     args.pass = pass.pass;
     for (auto &graphicsCommand: graphicsCommands) {
         std::visit([args](auto &val) { return val.apply(args); }, graphicsCommand);

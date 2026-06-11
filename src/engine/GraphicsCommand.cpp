@@ -46,6 +46,10 @@ void BindFragmentSampler::apply(const ApplyArgs &applyArgs) const {
     std::vector<SDL_GPUTextureSamplerBinding> bindings;
     bindings.reserve(bindingData.size());
     for (const auto &[texture, sampler] : bindingData) {
+        if (!applyArgs.gpuSamplers->contains(sampler)) {
+            // Log here
+            return;
+        }
         bindings.emplace_back(texture->texture, applyArgs.gpuSamplers->at(sampler).sampler);
     }
     SDL_BindGPUFragmentSamplers(applyArgs.pass, firstSlot, bindings.data(), bindings.size());

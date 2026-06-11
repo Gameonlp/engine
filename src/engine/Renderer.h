@@ -14,6 +14,7 @@
 struct RenderContext;
 
 class Renderer {
+public:
     void drawLine(RenderContext ctx, SDL_FPoint src, SDL_FPoint dst, SDL_FColor color);
     void drawTriangle(RenderContext ctx, SDL_FPoint a, SDL_FPoint b, SDL_FPoint c, SDL_FColor color, bool filled);
     void drawRect(RenderContext ctx, SDL_FRect rect, SDL_FColor color, bool filled);
