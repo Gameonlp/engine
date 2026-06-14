@@ -23,7 +23,7 @@ public:
     };
 
     explicit GameObject(const GameObjectConfig &config) : _position(config.position), zIndex(config.zIndex),
-                                                          absoluteZIndex(config.absoluteZIndex), initialized(true),
+                                                          absoluteZIndex(config.absoluteZIndex), initialized(false),
                                                           updating(false), parent(nullptr),
                                                           markedForRemoval(false) {
     };
