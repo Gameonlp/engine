@@ -67,6 +67,9 @@ void GameObject::_update(float dt) {
 }
 
 void GameObject::_draw(RenderContext ctx) {
+    if (!initialized) {
+        return;
+    }
     ctx = modifyRenderContext(ctx);
     if (absoluteZIndex) {
         ctx.zIndex = this->zIndex;
